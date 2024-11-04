@@ -1,80 +1,57 @@
 ﻿@page "/"
 
-<div class="row g-2 my-2 user-selected">
+@inject IUserAccountService UserAccountService
+
+<div class="row g-2 my-2 @(_selectedUser is not null ? "user-selected" : "")">
     <div class="user-panel col-sm-6 col-12">
-        <div class="bg-white rounded p-3">
-            <h6 class="border-bottom pb-2 mb-0">Users</h6>
-            <div class="d-flex text-body-secondary pt-3">
-                <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#95cfa2"></rect><text x="50%" y="50%" fill="#95cfa2" dy=".3em">32x32</text></svg>
-                <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-                    <div class="d-flex justify-content-between">
-                        <strong class="text-gray-dark">Full Name</strong>
-                        <a href="#">Remove</a>
+        <div class="bg-white rounded p-1">
+            <h6 class="border-bottom p-2 mb-0">Users</h6>
+
+            @foreach (var user in _result.Users)
+            {
+                var isSelected = _selectedUser?.Id == user.Id;
+                <div class="user-card d-flex text-body-secondary p-2 rounded @(isSelected ? "selected-user" : "")" @onclick="(args) => SelectUser(user)">
+                    <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#95cfa2"></rect><text x="50%" y="50%" fill="#95cfa2" dy=".3em">32x32</text></svg>
+                    <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                        <div class="d-flex justify-content-between">
+                            <strong class="text-gray-dark">@user.Name</strong>
+                            <a href="#">Remove</a>
+                        </div>
+                        <span class="d-block id-span">(#@user.Id)</span>
                     </div>
-                    <span class="d-block">username</span>
                 </div>
-            </div>
-            <div class="d-flex text-body-secondary pt-3">
-                <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#95cfa2"></rect><text x="50%" y="50%" fill="#95cfa2" dy=".3em">32x32</text></svg>
-                <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-                    <div class="d-flex justify-content-between">
-                        <strong class="text-gray-dark">Full Name</strong>
-                        <a href="#">Remove</a>
-                    </div>
-                    <span class="d-block">username</span>
-                </div>
-            </div>
-            <div class="d-flex text-body-secondary pt-3">
-                <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#95cfa2"></rect><text x="50%" y="50%" fill="#95cfa2" dy=".3em">32x32</text></svg>
-                <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-                    <div class="d-flex justify-content-between">
-                        <strong class="text-gray-dark">Full Name</strong>
-                        <a href="#">Remove</a>
-                    </div>
-                    <span class="d-block">username</span>
-                </div>
-            </div>
+            }
         </div>
+
+        <nav class="mt-2 mx-auto" aria-label="Page navigation" style="width: fit-content;">
+            <Pagination CurrentPage="_result.CurrentPage" MaxPage="_result.MaxPage" OnPageChanged="PageChanged" />
+        </nav>
     </div>
 
     <div class="account-panel col-sm-6 col-12">
-        <div class="bg-white rounded p-3">
-            <h6 class="border-bottom pb-2 mb-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="back-icon bi bi-arrow-left-short" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5" />
-                </svg>
-                Accounts
-            </h6>
-            <div class="d-flex text-body-secondary pt-3">
-                <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#95cfa2"></rect><text x="50%" y="50%" fill="#95cfa2" dy=".3em">32x32</text></svg>
-                <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-                    <div class="d-flex justify-content-between">
-                        <strong class="text-gray-dark">Name</strong>
-                        <a href="#">Remove</a>
+        <div class="bg-white rounded p-1">
+            @if (_selectedUser is not null)
+            {
+                <h6 class="border-bottom p-2 mb-0">
+                    <svg @onclick="RemoveSelection" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="back-icon bi bi-arrow-left-short" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5" />
+                    </svg>
+                    @_selectedUser.Name > Accounts
+                </h6>
+                @foreach (var account in _selectedUser.Accounts)
+                {
+                    <div class="d-flex text-body-secondary p-2 pt-3">
+                        <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#5e919f"></rect><text x="50%" y="50%" fill="#5e919f" dy=".3em">32x32</text></svg>
+                        <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                            <div class="d-flex justify-content-between">
+                                <strong class="text-gray-dark">@account.Name</strong>
+                                <a href="#">Remove</a>
+                            </div>
+                            <span class="d-block">@(account.IsActive ? "active" : "inactive")</span>
+                        </div>
                     </div>
-                    <span class="d-block">active/inactive</span>
-                </div>
-            </div>
-            <div class="d-flex text-body-secondary pt-3">
-                <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#95cfa2"></rect><text x="50%" y="50%" fill="#95cfa2" dy=".3em">32x32</text></svg>
-                <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-                    <div class="d-flex justify-content-between">
-                        <strong class="text-gray-dark">Name</strong>
-                        <a href="#">Remove</a>
-                    </div>
-                    <span class="d-block">active/inactive</span>
-                </div>
-            </div>
-            <div class="d-flex text-body-secondary pt-3">
-                <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#95cfa2"></rect><text x="50%" y="50%" fill="#95cfa2" dy=".3em">32x32</text></svg>
-                <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-                    <div class="d-flex justify-content-between">
-                        <strong class="text-gray-dark">Name</strong>
-                        <a href="#">Remove</a>
-                    </div>
-                    <span class="d-block">active/inactive</span>
-                </div>
-            </div>
+                }
+            }
         </div>
     </div>
 
@@ -82,3 +59,30 @@
         No user selected...
     </div>
 </div>
+
+@code {
+    private GetUsersResult _result = null!;
+    private UserModel? _selectedUser;
+    private UserFilterModel _filter = new UserFilterModel(1, 20);
+
+    protected override void OnInitialized()
+    {
+        _result = UserAccountService.GetUsers(_filter);
+    }
+
+    private void SelectUser(UserModel user)
+    {
+        _selectedUser = user;
+    }
+
+    private void RemoveSelection()
+    {
+        _selectedUser = null;
+    }
+
+    private void PageChanged(int page)
+    {
+        _filter = _filter with { Page = page };
+        _result = UserAccountService.GetUsers(_filter);
+    }
+}

@@ -41,3 +41,24 @@
         display: none;
     }
 }
+
+.user-card {
+    cursor: pointer;
+}
+
+    .user-card:hover {
+        background-color: #eef2f3;
+    }
+
+.selected-user {
+    background-color: #d8e6e9 !important;
+}
+
+    .selected-user .border-bottom {
+        border-color: transparent !important;
+    }
+
+.id-span {
+    font-size: 12px;
+    font-style: italic;
+}

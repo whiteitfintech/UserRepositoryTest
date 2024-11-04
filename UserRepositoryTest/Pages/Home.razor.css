@@ -1,0 +1,43 @@
+﻿.account-panel {
+    position: sticky;
+    top: 10px;
+    left: unset;
+    height: fit-content;
+    background-color: transparent;
+}
+
+.back-icon {
+    display: none;
+}
+
+.account-panel {
+    display: none;
+}
+
+.no-user-panel {
+    color: #bfbfbf;
+    font-variant: small-caps;
+}
+
+.user-selected .no-user-panel {
+    display: none;
+}
+
+.user-selected .account-panel {
+    display: block;
+}
+
+@media (max-width: 575px) {
+    .no-user-panel {
+        display: none;
+    }
+
+    .back-icon {
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    .user-selected .user-panel {
+        display: none;
+    }
+}

@@ -1,5 +1,107 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+@inject IUserAccountService UserAccountService
 
-<h1>User list</h1>
+<div class="row g-2 my-2 @(_selectedUser is not null ? "user-selected" : "")">
+    <div class="user-panel col-sm-6 col-12">
+        <div class="bg-white rounded p-1">
+            <h6 class="border-bottom p-2 mb-0 d-flex align-items-center">
+                <span class="flex-grow-1">Users</span> 
+                <button type="button" class="btn btn-light btn-sm text-nowrap" @onclick="CreateUser">Create new</button>
+            </h6>
+
+            @foreach (var user in _result.Users)
+            {
+                var isSelected = _selectedUser?.Id == user.Id;
+                <div class="user-card d-flex text-body-secondary p-2 rounded @(isSelected ? "selected-user" : "")" @onclick="(args) => SelectUser(user)">
+                    <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false">
+                        <title>Placeholder</title>
+                        <rect width="100%" height="100%" fill="#95cfa2"></rect>
+                    </svg>
+                    <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                        <strong class="text-gray-dark ellipsis d-block">@user.Name</strong>
+                        <span class="d-block id-span">#@user.Id</span>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <nav class="mt-2 mx-auto" aria-label="Page navigation" style="width: fit-content;">
+            <Pagination CurrentPage="_result.CurrentPage" MaxPage="_result.MaxPage" OnPageChanged="PageChanged" />
+        </nav>
+    </div>
+
+    <div class="account-panel col-sm-6 col-12">
+        <div class="bg-white rounded p-1">
+            @if (_selectedUser is not null)
+            {
+                <svg @onclick="RemoveSelection" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="back-icon bi bi-x ms-auto" viewBox="0 0 16 16">
+                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+                </svg>
+                <UserAccounts SelectedUserId="_selectedUser.Id" />
+            }
+        </div>
+    </div>
+
+    <div class="no-user-panel col-sm-6 col-12 text-center pt-2">
+        No user selected...
+    </div>
+</div>
+
+@code {
+    private const int MAX_RECORD_COUNT_PER_PAGE = 20;
+
+    private GetUsersResult _result = null!;
+    private UserDto? _selectedUser;
+    private UserFilterModel _filter = new UserFilterModel(1, MAX_RECORD_COUNT_PER_PAGE);
+
+    [CascadingParameter]
+    public IInputModal InputModal { get; set; } = null!;
+
+    [CascadingParameter]
+    public IToastMessageHandler Toast { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        Reload();
+    }
+
+    private void SelectUser(UserDto user)
+    {
+        _selectedUser = user;
+    }
+
+    private void RemoveSelection()
+    {
+        _selectedUser = null;
+    }
+
+    private void PageChanged(int page)
+    {
+        _filter = _filter with { Page = page }; 
+        Reload();
+    }
+
+    private async Task CreateUser()
+    {
+        var userName = await InputModal.Show("Create New User", "Full Name");
+        if (userName is null) return;
+
+        if (!string.IsNullOrEmpty(userName))
+        {
+            if (UserAccountService.Add(userName))
+            {
+                Reload();
+                Toast.Success("User has been successfully created!", autoHide: true);
+                return;
+            }
+        }
+
+        Toast.Danger("User creation failed.", autoHide: true);
+    }
+
+    private void Reload()
+    {
+        _result = UserAccountService.GetUsers(_filter);
+    }
+}

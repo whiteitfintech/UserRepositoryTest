@@ -1,0 +1,59 @@
+﻿<ul class="pagination pagination-sm">
+    <!-- Previous Button -->
+    <li class="page-item @(CurrentPage == 1 ? "disabled" : "")">
+        <a class="page-link" href="#" @onclick="PreviousPage" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+        </a>
+    </li>
+
+    <!-- Page Numbers -->
+    @foreach (var pageIndex in PaginationHelper.GetPageNumbers(CurrentPage, MaxPage))
+    {
+        <li class="page-item @(pageIndex == CurrentPage ? "active" : "")">
+            <a class="page-link" href="#" @onclick="() => GoToPage(pageIndex)">@pageIndex</a>
+        </li>
+    }
+
+    <!-- Next Button -->
+    <li class="page-item @(CurrentPage == MaxPage ? "disabled" : "")">
+        <a class="page-link" href="#" @onclick="NextPage" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+        </a>
+    </li>
+</ul>
+
+@code {
+    [Parameter]
+    public int CurrentPage { get; set; } = 1;
+
+    [Parameter]
+    public int MaxPage { get; set; } = 1;
+
+    [Parameter]
+    public EventCallback<int> OnPageChanged { get; set; }
+
+    private void GoToPage(int page)
+    {
+        if (page < 1 || page > MaxPage || page == CurrentPage)
+            return;
+
+        OnPageChanged.InvokeAsync(page);
+    }
+
+    private void PreviousPage()
+    {
+        if (CurrentPage > 1)
+        {
+            GoToPage(CurrentPage - 1);
+        }
+    }
+
+    private void NextPage()
+    {
+        if (CurrentPage < MaxPage)
+        {
+            GoToPage(CurrentPage + 1);
+        }
+    }
+
+}

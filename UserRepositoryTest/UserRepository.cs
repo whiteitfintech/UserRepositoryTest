@@ -36,12 +36,12 @@ namespace UserRepositoryTest
         }
         public bool IsActive
         {
-            get => IsActive;
+            get => _IsActive;
             set
             {
-                if (IsActive != value)
+                if (_IsActive != value)
                 {
-                    IsActive = value;
+                    _IsActive = value;
                     OnPropertyChanged();
                 }
             }

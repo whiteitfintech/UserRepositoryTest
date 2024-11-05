@@ -1,7 +1,21 @@
 ﻿@inherits LayoutComponentBase
+@implements IInputModal
 
 <NavMenu />
 
 <main class="container">
-    @Body
+    <CascadingValue Value="@((IInputModal)this)">
+        @Body
+    </CascadingValue>
 </main>
+
+<InputModal @ref="inputModal" />
+
+@code {
+    private InputModal? inputModal;
+
+    public Task<string?> Show(string title, string propertyName)
+    {
+        return inputModal!.Show(title, propertyName);
+    }
+}

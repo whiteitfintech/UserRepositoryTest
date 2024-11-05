@@ -2,9 +2,20 @@
 
 public interface IUserAccountService
 {
+    public UserDto? GetUser(Guid userId);
     public GetUsersResult GetUsers(UserFilterModel filter);
+    public IEnumerable<AccountDto> GetAccounts(Guid userId);
+
+    public void Add(string userName);
+    public void AddAccount(Guid userId, string accountName);
+    public void SetAccountActive(Guid userId, Guid accountId, bool isActive);
 }
 
 public record UserFilterModel(int Page, int Take);
 
-public record GetUsersResult(IEnumerable<UserModel> Users, int CurrentPage, int MaxPage);
+public record UserDto(string Name, Guid Id);
+public record AccountDto(string Name, Guid Id, bool IsActive)
+{
+    public bool IsActive { get; set; } = IsActive;
+}
+public record GetUsersResult(IEnumerable<UserDto> Users, int CurrentPage, int MaxPage);

@@ -1,6 +1,10 @@
 .logo {
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    font-size: larger;
+    font-family: "Montserrat", sans-serif;
+    font-size: 22px;
+    font-optical-sizing: auto;
+    font-weight: 800;
+    font-style: italic;
+    margin-bottom: -2px;
 }
 
 .navbar {

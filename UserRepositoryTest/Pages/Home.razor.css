@@ -33,8 +33,7 @@
     }
 
     .back-icon {
-        display: inline-block;
-        margin-right: 10px;
+        display: block;
     }
 
     .user-selected .user-panel {
@@ -55,10 +54,5 @@
 }
 
     .selected-user .border-bottom {
-        border-color: transparent !important;
+        border-color: #bfbfbf70 !important;
     }
-
-.id-span {
-    font-size: 12px;
-    font-style: italic;
-}

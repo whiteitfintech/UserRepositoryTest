@@ -5,19 +5,22 @@
 <div class="row g-2 my-2 @(_selectedUser is not null ? "user-selected" : "")">
     <div class="user-panel col-sm-6 col-12">
         <div class="bg-white rounded p-1">
-            <h6 class="border-bottom p-2 mb-0">Users</h6>
+            <h6 class="border-bottom p-2 mb-0 d-flex align-items-center">
+                <span class="flex-grow-1">Users</span> 
+                <button type="button" class="btn btn-light btn-sm text-nowrap" @onclick="CreateUser">Create new</button>
+            </h6>
 
             @foreach (var user in _result.Users)
             {
                 var isSelected = _selectedUser?.Id == user.Id;
                 <div class="user-card d-flex text-body-secondary p-2 rounded @(isSelected ? "selected-user" : "")" @onclick="(args) => SelectUser(user)">
-                    <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#95cfa2"></rect><text x="50%" y="50%" fill="#95cfa2" dy=".3em">32x32</text></svg>
+                    <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false">
+                        <title>Placeholder</title>
+                        <rect width="100%" height="100%" fill="#95cfa2"></rect>
+                    </svg>
                     <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-                        <div class="d-flex justify-content-between">
-                            <strong class="text-gray-dark">@user.Name</strong>
-                            <a href="#">Remove</a>
-                        </div>
-                        <span class="d-block id-span">(#@user.Id)</span>
+                        <strong class="text-gray-dark ellipsis d-block">@user.Name</strong>
+                        <span class="d-block id-span">#@user.Id</span>
                     </div>
                 </div>
             }
@@ -32,25 +35,10 @@
         <div class="bg-white rounded p-1">
             @if (_selectedUser is not null)
             {
-                <h6 class="border-bottom p-2 mb-0">
-                    <svg @onclick="RemoveSelection" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="back-icon bi bi-arrow-left-short" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5" />
-                    </svg>
-                    @_selectedUser.Name > Accounts
-                </h6>
-                @foreach (var account in _selectedUser.Accounts)
-                {
-                    <div class="d-flex text-body-secondary p-2 pt-3">
-                        <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#5e919f"></rect><text x="50%" y="50%" fill="#5e919f" dy=".3em">32x32</text></svg>
-                        <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-                            <div class="d-flex justify-content-between">
-                                <strong class="text-gray-dark">@account.Name</strong>
-                                <a href="#">Remove</a>
-                            </div>
-                            <span class="d-block">@(account.IsActive ? "active" : "inactive")</span>
-                        </div>
-                    </div>
-                }
+                <svg @onclick="RemoveSelection" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="back-icon bi bi-x ms-auto" viewBox="0 0 16 16">
+                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+                </svg>
+                <UserAccounts SelectedUserId="_selectedUser.Id" />
             }
         </div>
     </div>
@@ -61,16 +49,21 @@
 </div>
 
 @code {
+    private const int MAX_RECORD_COUNT_PER_PAGE = 20;
+
     private GetUsersResult _result = null!;
-    private UserModel? _selectedUser;
-    private UserFilterModel _filter = new UserFilterModel(1, 20);
+    private UserDto? _selectedUser;
+    private UserFilterModel _filter = new UserFilterModel(1, MAX_RECORD_COUNT_PER_PAGE);
+
+    [CascadingParameter]
+    public IInputModal? InputModal { get; set; }
 
     protected override void OnInitialized()
     {
-        _result = UserAccountService.GetUsers(_filter);
+        Reload();
     }
 
-    private void SelectUser(UserModel user)
+    private void SelectUser(UserDto user)
     {
         _selectedUser = user;
     }
@@ -82,7 +75,22 @@
 
     private void PageChanged(int page)
     {
-        _filter = _filter with { Page = page };
+        _filter = _filter with { Page = page }; 
+        Reload();
+    }
+
+    private async Task CreateUser()
+    {
+        var userName = await InputModal!.Show("Create new user", "Full Name");
+        if (!string.IsNullOrEmpty(userName))
+        {
+            UserAccountService.Add(userName); 
+            Reload();
+        }
+    }
+
+    private void Reload()
+    {
         _result = UserAccountService.GetUsers(_filter);
     }
 }

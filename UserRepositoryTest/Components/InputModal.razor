@@ -1,0 +1,57 @@
+﻿<div class="modal @(_showModal?"show":"")" style="display:@(_showModal?"block":"hidden")" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@_title</h5>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <span class="input-group-text">@_propertyName</span>
+                    <input type="text" aria-label="Title" class="form-control" @bind="_input" maxlength="64" 
+                           oninput="this.value = this.value.replace(/[^A-Za-z0-9ŽžÀ-ÿ _]/g, '');">
+                </div>
+            </div>
+            <div class="modal-footer d-flex flex-row justify-content-evenly">
+                <button type="button" class="flex-grow-1 btn btn-light" @onclick="Close">Cancel</button>
+                <button type="button" class="flex-grow-1 btn btn-primary" @onclick="SaveChanges">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (_showModal)
+{
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private bool _showModal { get; set; } = false;
+    private TaskCompletionSource<string?> taskCompletionSource = null!;
+    private string _input = "";
+    private string _title = "";
+    private string _propertyName = "";
+
+    public Task<string?> Show(string title, string propertyName)
+    {
+        _title = title;
+        _propertyName = propertyName;
+        _input = "";
+        taskCompletionSource = new TaskCompletionSource<string?>();
+        _showModal = true;
+        StateHasChanged();
+
+        return taskCompletionSource.Task;
+    }
+
+    private void Close()
+    {
+        _showModal = false;
+        taskCompletionSource.SetResult(null);
+    }
+
+    private void SaveChanges()
+    {
+        _showModal = false;
+        taskCompletionSource.SetResult(_input);
+    }
+}

@@ -1,0 +1,56 @@
+﻿@implements IToastMessageHandler
+
+<CascadingValue Value="@((IToastMessageHandler)this)" IsFixed="true">
+    @ChildContent
+</CascadingValue> 
+
+<ToastContainer @ref="_toastContainer" />
+
+@code {
+    private const int HIDE_DELAY_IN_SEC = 5;
+    private ToastContainer? _toastContainer;
+
+    [Parameter]
+    public TimeSpan DefaultAutoHideDelay { get; set; } = TimeSpan.FromSeconds(HIDE_DELAY_IN_SEC);
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    public void Info(string message, bool autoHide, TimeSpan? autoHideDelay = null)
+    {
+        var toast = _toastContainer?.CreateToast(message, "info");
+        _ = HideToast(toast, autoHide, autoHideDelay);
+    }
+
+    public void Success(string message, bool autoHide, TimeSpan? autoHideDelay = null)
+    {
+        var toast = _toastContainer?.CreateToast(message, "success");
+        _ = HideToast(toast, autoHide, autoHideDelay);
+
+    }
+
+    public void Danger(string message, bool autoHide, TimeSpan? autoHideDelay = null)
+    {
+        var toast = _toastContainer?.CreateToast(message, "danger");
+        _ = HideToast(toast, autoHide, autoHideDelay);
+
+    }
+
+    public void Warning(string message, bool autoHide, TimeSpan? autoHideDelay = null)
+    {
+        var toast = _toastContainer?.CreateToast(message, "warning");
+        _ = HideToast(toast, autoHide, autoHideDelay);
+
+    }
+
+    private async Task HideToast(ToastContainer.Toast? toast, bool autoHide, TimeSpan? autoHideDelay = null)
+    {
+        if (autoHide && toast != null)
+        {
+            await Task.Delay(autoHideDelay ?? DefaultAutoHideDelay);
+            _toastContainer?.RemoveToast(toast);
+        }
+    }
+}
+
+

@@ -30,7 +30,10 @@
     private UserDto? _selectedUser = null!;
 
     [CascadingParameter]
-    public IInputModal? InputModal { get; set; }
+    public IInputModal InputModal { get; set; } = null!; 
+
+    [CascadingParameter]
+    public IToastMessageHandler Toast { get; set; } = null!;
 
     [Parameter, EditorRequired]
     public required Guid SelectedUserId { get; set; }
@@ -43,12 +46,20 @@
 
     private async Task CreateAccount()
     {
-        var accountName = await InputModal!.Show("Create new account", "Account Name");
+        var accountName = await InputModal.Show("Create New Account", "Account Name");
+        if (accountName is null) return;
+
         if (!string.IsNullOrEmpty(accountName))
         {
-            UserAccountService.AddAccount(SelectedUserId, accountName);
-            _accounts = UserAccountService.GetAccounts(SelectedUserId);
+            if (UserAccountService.AddAccount(SelectedUserId, accountName))
+            {
+                _accounts = UserAccountService.GetAccounts(SelectedUserId);
+                Toast.Success("Account has been successfully created!", autoHide: true);
+                return;
+            }
         }
+
+        Toast.Danger("Account creation failed.", autoHide: true);
     }
 
     private void SetActive(AccountDto account, ChangeEventArgs args)

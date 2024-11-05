@@ -2,18 +2,22 @@
 
 public class UserAccountService(IUserRepository userRepository) : IUserAccountService
 {
-    public void Add(string userName)
+    public bool Add(string userName)
     {
         userRepository.AddUser(new UserModel(Guid.NewGuid(), userName));
+        return true;
     }
 
-    public void AddAccount(Guid userId, string accountName)
+    public bool AddAccount(Guid userId, string accountName)
     {
         var user = userRepository.GetUser(userId);
         if (user is not null)
         {
             user.Accounts.Add(new AccountModel(Guid.NewGuid(), accountName, true));
+            return true;
         }
+
+        return false;
     }
 
     public IEnumerable<AccountDto> GetAccounts(Guid userId)
@@ -40,13 +44,16 @@ public class UserAccountService(IUserRepository userRepository) : IUserAccountSe
         return new GetUsersResult(usersResult, filter.Page, maxPage);
     }
 
-    public void SetAccountActive(Guid userId, Guid accountId, bool isActive)
+    public bool SetAccountActive(Guid userId, Guid accountId, bool isActive)
     {
         var user = userRepository.GetUser(userId);
         var account = user?.Accounts.FirstOrDefault(x => x.Id == accountId);
         if (account != null) 
         {
             account.IsActive = isActive;
+            return true;
         }
+
+        return false;
     }
 }

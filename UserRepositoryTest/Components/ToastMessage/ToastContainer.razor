@@ -1,0 +1,40 @@
+﻿<div class="toast-container position-fixed start-0 top-0 w-100 p-4 v-stack">
+    @foreach (var toast in _toasts)
+    {
+        <div class="toast me-auto ms-auto bg-@toast.Color text-bg-@toast.Color border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    @toast.Message
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" aria-label="Close"
+                    @onclick="(args) => RemoveWithoutNotify(toast)"></button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<Toast> _toasts = new List<Toast>();
+
+    public Toast CreateToast(string message, string color)
+    {
+        var toast = new Toast(message, color);
+        _toasts.Add(toast);
+        StateHasChanged();
+
+        return toast;
+    }
+
+    public void RemoveToast(Toast toast)
+    {
+        RemoveWithoutNotify(toast);
+        StateHasChanged();
+    }
+
+    private void RemoveWithoutNotify(Toast toast)
+    {
+        _toasts.Remove(toast);
+    }
+
+    public record Toast(string Message, string Color);
+}

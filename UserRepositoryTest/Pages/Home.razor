@@ -56,7 +56,10 @@
     private UserFilterModel _filter = new UserFilterModel(1, MAX_RECORD_COUNT_PER_PAGE);
 
     [CascadingParameter]
-    public IInputModal? InputModal { get; set; }
+    public IInputModal InputModal { get; set; } = null!;
+
+    [CascadingParameter]
+    public IToastMessageHandler Toast { get; set; } = null!;
 
     protected override void OnInitialized()
     {
@@ -81,12 +84,20 @@
 
     private async Task CreateUser()
     {
-        var userName = await InputModal!.Show("Create new user", "Full Name");
+        var userName = await InputModal.Show("Create New User", "Full Name");
+        if (userName is null) return;
+
         if (!string.IsNullOrEmpty(userName))
         {
-            UserAccountService.Add(userName); 
-            Reload();
+            if (UserAccountService.Add(userName))
+            {
+                Reload();
+                Toast.Success("User has been successfully created!", autoHide: true);
+                return;
+            }
         }
+
+        Toast.Danger("User creation failed.", autoHide: true);
     }
 
     private void Reload()

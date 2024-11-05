@@ -4,9 +4,11 @@
 <NavMenu />
 
 <main class="container">
-    <CascadingValue Value="@((IInputModal)this)">
-        @Body
-    </CascadingValue>
+    <ToastHandler>
+        <CascadingValue Value="@((IInputModal)this)">
+            @Body
+        </CascadingValue>
+    </ToastHandler>
 </main>
 
 <InputModal @ref="inputModal" />

@@ -6,9 +6,9 @@ public interface IUserAccountService
     public GetUsersResult GetUsers(UserFilterModel filter);
     public IEnumerable<AccountDto> GetAccounts(Guid userId);
 
-    public void Add(string userName);
-    public void AddAccount(Guid userId, string accountName);
-    public void SetAccountActive(Guid userId, Guid accountId, bool isActive);
+    public bool Add(string userName);
+    public bool AddAccount(Guid userId, string accountName);
+    public bool SetAccountActive(Guid userId, Guid accountId, bool isActive);
 }
 
 public record UserFilterModel(int Page, int Take);
